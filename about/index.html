@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+          关于我 | 读读说明书
+              
+  </title>
+  <link rel="icon" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NZNG2XJNE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-6NZNG2XJNE');
+    </script>
+    
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar-container">
+        <img src="/images/avatar.jpg" alt="Mr. Yang" class="avatar" id="user-avatar" onclick="rotateAvatar()">
+      </div>
+
+      <h1 class="name">读读说明书</h1>
+      <p class="subtitle">数据分析师 | 人类观察员</p>
+
+      <div class="social-links">
+        <a href="https://github.com/Wunala" target="_blank">GitHub</a>
+        <span>/</span>
+        <a href="mailto:youngqi27@163.com">Email</a>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="/">首页</a>
+      <a href="/archives">历史文章</a>
+      <a href="/memos">碎碎念</a>
+      <a href="/about">关于我</a>
+    </nav>
+
+    <div class="footer">
+      <p>&copy; 2025 Mr. Young</p>
+      <p class="site-motto">在夏天到达的尽头，值得我赌上每一份青春。</p>
+      <div class="footer-divider"></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <article class="page-detail">
+  <header class="page-header">
+    <h1 class="page-title">关于我</h1>
+  </header>
+
+  <div class="page-content">
+    <p>2年上海字节跳动电商体验运营工作，绩效突出，目前从事金融数据研究工作，在成都。</p>
+<h4 id="会什么？"><a href="#会什么？" class="headerlink" title="会什么？"></a>会什么？</h4><ul>
+<li><strong>工作技能</strong>：SQL，Python等数据分析相关的工具，独立0-1项目搭建，理解、学习、分析、跨部门沟通能力佳，英语良好</li>
+<li><strong>业余运动</strong>：网球练习时长约20小时，Blade V9用户，会正反手，但目前不稳定</li>
+</ul>
+<h4 id="爱什么？"><a href="#爱什么？" class="headerlink" title="爱什么？"></a>爱什么？</h4><ul>
+<li><strong>电影🎬</strong>：应该看过快1000部</li>
+<li><strong>音乐🎵</strong>：不同的阶段喜欢的不一样。喜欢过周杰伦、五月天、陈冠希、许嵩、汪苏泷、余佳运、Taylor Swift等；近两年主要是Coldplay、The 1975、Keshi、Charlie Puth、IVE、NewJeans、LE SSERAFIM、TWICE、BLACKPINK、IU、BIBI、XG、太妍等，基本沉迷K-pop女团。风格不固定，好听就行。KTV中文小曲库，奈何多语言能力暂拖后腿，不然更牛</li>
+<li><strong>游戏🎮</strong>：双人游戏、模拟类游戏，轻暴力&#x2F;休闲的，游戏过敏体质</li>
+<li><strong>其它🤔</strong>：散步（整理思绪的方式）、晴天、日落、大自然、机场（喜欢出发，但又不喜欢离别）、可爱物件、挣钱买小时候没玩过的玩具、随时掏手机拍照</li>
+</ul>
+<h4 id="想什么？"><a href="#想什么？" class="headerlink" title="想什么？"></a>想什么？</h4><p><em><strong>“变聪明，跳出环境，做不受限制的决定才有希望。”</strong></em></p>
+<h4 id="为什么做这个网站？"><a href="#为什么做这个网站？" class="headerlink" title="为什么做这个网站？"></a>为什么做这个网站？</h4><p>Gemini建议说给自己创建一个自由输出想法的地方。研究了一下就弄成功了，尝到了正反馈甜头，和学网球一样又是一件好像可以专注下去的事情。等我真的想好了再来“润色”补充，新事物先做起来，再思考意义🤣。</p>
+
+  </div>
+</article>
+  </main>
+  <script>
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+    // 2. 自动收回逻辑：当页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.sidebar');
+
+      // 监听侧边栏内的点击动作
+      sidebar.addEventListener('click', function (e) {
+        // 如果点击的是链接 (A 标签) 或者链接里的文字 (SPAN)
+        if (e.target.closest('a')) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      // 点击侧边栏外部区域关闭（增强体验）
+      document.addEventListener('click', function (e) {
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (sidebar.classList.contains('active') &&
+          !sidebar.contains(e.target) &&
+          e.target !== menuToggle) {
+          sidebar.classList.remove('active');
+        }
+      });
+    });
+
+    let currentRotation = 0;
+
+    function rotateAvatar() {
+      currentRotation += 360; // 每次点击增加 360 度
+      const avatar = document.getElementById('user-avatar');
+      avatar.style.transform = `rotate(${currentRotation}deg)`;
+    }
+  </script>
+</body>
+
+</html>

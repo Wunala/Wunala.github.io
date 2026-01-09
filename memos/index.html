@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+          碎碎念 | 读读说明书
+              
+  </title>
+  <link rel="icon" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NZNG2XJNE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-6NZNG2XJNE');
+    </script>
+    
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar-container">
+        <img src="/images/avatar.jpg" alt="Mr. Yang" class="avatar" id="user-avatar" onclick="rotateAvatar()">
+      </div>
+
+      <h1 class="name">读读说明书</h1>
+      <p class="subtitle">数据分析师 | 人类观察员</p>
+
+      <div class="social-links">
+        <a href="https://github.com/Wunala" target="_blank">GitHub</a>
+        <span>/</span>
+        <a href="mailto:youngqi27@163.com">Email</a>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="/">首页</a>
+      <a href="/archives">历史文章</a>
+      <a href="/memos">碎碎念</a>
+      <a href="/about">关于我</a>
+    </nav>
+
+    <div class="footer">
+      <p>&copy; 2025 Mr. Young</p>
+      <p class="site-motto">在夏天到达的尽头，值得我赌上每一份青春。</p>
+      <div class="footer-divider"></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="memos-wrapper">
+
+    <div class="memos-editor">
+        <textarea id="memo-content" placeholder="记录下想法...💡"></textarea>
+        <div class="editor-footer">
+            <input type="password" id="memo-pass" placeholder="输入密码" class="pass-input">
+            <button onclick="verifyAdmin()" id="auth-btn" title="验证身份">🔑</button>
+            <button onclick="postMemo()" id="post-btn">发送🚀</button>
+        </div>
+    </div>
+
+    <div id="memos-list">
+        <div class="loading"> Loading📡</div>
+    </div>
+
+    <button onclick="loadMemos()" id="load-more-btn" style="display:none">加载更多</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.15.0/dist/av-min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/xss@1.0.14/dist/xss.min.js"></script>
+<script>
+    // ================= 配置区 =================
+    const APP_ID = '7DskOMG6exb3QzJdatkZVLvj-MdYXbMMI';     // 🔴 必填
+    const APP_KEY = 'Kgaf0mnSA2nlYMoZgkLfEzQn';   // 🔴 必填
+    const ADMIN_HASH = '50d1587ff34a6910c8e76b899d69eae2';    // 🔴 设置一个简单的发布密码(不再依赖Artitalk的用户系统，直接这里验证)
+    // =========================================
+
+    // 初始化 LeanCloud
+    const { Query, User } = AV;
+    AV.init({
+        appId: APP_ID, appKey: APP_KEY,
+        serverURLs: "https://api.youngreviews.cc"
+    });
+
+    let page = 0;
+    const pageSize = 5;
+
+    let isAdmin = localStorage.getItem('memo_admin_md5') === ADMIN_HASH;
+
+    // 1. 加载说说逻辑
+    async function loadMemos() {
+        const query = new AV.Query('shuoshuo'); // 读取你原来的表
+        query.descending('createdAt');
+        query.limit(pageSize);
+        query.skip(page * pageSize);
+
+        try {
+            const results = await query.find();
+            const listDiv = document.getElementById('memos-list');
+            const loadBtn = document.getElementById('load-more-btn');
+
+            if (page === 0) listDiv.innerHTML = '';
+
+            if (results.length === 0) {
+                loadBtn.style.display = 'none';
+                if (page === 0) listDiv.innerHTML = '<div class="empty">暂无内容</div>';
+                return;
+            }
+
+            results.forEach(memo => {
+                const content = filterXSS(memo.get('content'));
+                const dateObj = memo.createdAt;
+                const dateStr = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')} ${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+                // 获取唯一ID，用于删除
+                const objectId = memo.id;
+
+                // 判断是否显示删除按钮
+                const delBtnHtml = isAdmin ? `<span class="del-btn" onclick="deleteMemo('${objectId}', this)">删除</span>` : '';
+
+                const item = document.createElement('div');
+                item.className = 'memo-item';
+                item.innerHTML = `
+                    <div class="memo-avatar"></div>
+                    <div class="memo-content">
+                        <div class="memo-text">${content}</div>
+                        <div class="memo-meta">
+                            <span class="memo-date">${dateStr}</span>
+                            ${delBtnHtml}
+                        </div>
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+
+            page++;
+            loadBtn.style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            alert('加载失败，请检查网络');
+        }
+    }
+
+    // 2. 验证身份 (点击钥匙按钮)
+    function verifyAdmin() {
+        const inputPass = document.getElementById('memo-pass').value;
+
+        if (md5(inputPass) === ADMIN_HASH) {
+            localStorage.setItem('memo_admin_md5', ADMIN_HASH);
+            isAdmin = true;
+            alert('身份验证成功！🔓');
+            // 重新加载列表，把删除按钮显示出来
+            page = 0;
+            loadMemos();
+            document.getElementById('memo-pass').value = '';
+        } else {
+            alert('验证失败🚫');
+        }
+    }
+
+
+
+    // 2. 发布说说逻辑
+    async function postMemo() {
+        const content = document.getElementById('memo-content').value;
+        const inputPass = document.getElementById('memo-pass').value;
+
+        if (!content) return alert('写点什么吧？');
+        if (!isAdmin && md5(inputPass) !== ADMIN_HASH) return alert('请输入正确密码');
+
+        const btn = document.getElementById('post-btn');
+        btn.innerText = '发送中...';
+        btn.disabled = true;
+
+        try {
+            const Memo = AV.Object.extend('shuoshuo');
+            const memo = new Memo();
+            memo.set('content', content);
+
+            const acl = new AV.ACL();
+            acl.setPublicReadAccess(true);  // 允许所有人读
+            acl.setPublicWriteAccess(true); // 允许所有人写/删
+            memo.setACL(acl);
+
+
+            await memo.save();
+
+            // 发布成功自动设为管理员
+            if (!isAdmin) {
+                localStorage.setItem('memo_admin_md5', ADMIN_HASH);
+                isAdmin = true;
+            }
+
+            alert('发布成功！⚡️');
+            document.getElementById('memo-content').value = '';
+            page = 0;
+            loadMemos();
+        } catch (error) {
+            console.error(error);
+            alert('发送失败: ' + error.message);
+        } finally {
+            btn.innerText = '发送 🚀';
+            btn.disabled = false;
+        }
+    }
+
+    // 4. 删除说说 (新增功能)
+    async function deleteMemo(id, btnElement) {
+        if (!confirm('确定要删除这条记忆吗？🗑️')) return;
+
+        try {
+            const todo = AV.Object.createWithoutData('shuoshuo', id);
+            await todo.destroy();
+            // 视觉上直接移除该元素，不用刷新页面
+            const item = btnElement.closest('.memo-item');
+            item.style.opacity = '0';
+            setTimeout(() => item.remove(), 300);
+            alert('已删除');
+        } catch (error) {
+            console.error(error);
+            alert('删除失败，请检查 LeanCloud 后台权限设置');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 如果已经登录，自动把密码框填上（可选）
+        if (isAdmin) {
+            document.getElementById('memo-pass').placeholder = "已是管理员";
+        }
+        loadMemos();
+    });
+
+</script>
+
+<style>
+    /* 容器 */
+    .memos-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: -apple-system, sans-serif;
+    }
+
+    /* 编辑器 */
+    .memos-editor {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    textarea#memo-content {
+        width: 100%;
+        height: 80px;
+        border: none;
+        resize: none;
+        outline: none;
+        background: transparent;
+        font-size: 16px;
+        color: #333;
+        font-family: inherit;
+        display: block;
+        box-sizing: border-box;
+    }
+
+    .editor-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 10px;
+        border-top: 1px dashed #eee;
+        padding-top: 10px;
+        gap: 10px;
+    }
+
+    /* 密码框 */
+    .pass-input {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px;
+        font-size: 14px;
+        width: 100px;
+        outline: none;
+        background: #fafafa;
+    }
+
+    /* 验证按钮 */
+    #auth-btn {
+        background: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 5px 10px;
+    }
+
+    /* 发送按钮 */
+    #post-btn {
+        background: #333;
+        color: #fff;
+        border: none;
+        padding: 6px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    /* 列表项 */
+    .memo-item {
+        display: flex;
+        gap: 15px;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        height: auto;
+        transition: opacity 0.3s;
+    }
+
+    .memo-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-image: url('/images/favicon.png');
+        /* 🔴 头像路径 */
+        background-size: cover;
+        flex-shrink: 0;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .memo-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .memo-text {
+        font-size: 16px;
+        color: #333;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+
+    /* 底部信息栏 (日期+删除) */
+    .memo-meta {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        /* 日期在左，删除在右 */
+        align-items: center;
+    }
+
+    .memo-date {
+        font-size: 12px;
+        color: #999;
+    }
+
+    /* 🔴 删除按钮样式 */
+    .del-btn {
+        color: #ff4d4f;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 2px 8px;
+        background: rgba(255, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+
+    .del-btn:hover {
+        background: rgba(255, 0, 0, 0.1);
+    }
+
+    /* 加载更多 */
+    #load-more-btn {
+        margin: 20px auto;
+        display: block;
+        background: #fff;
+        border: 1px solid #333;
+        color: #333;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+        .memo-item {
+            padding: 15px;
+        }
+
+        .memo-avatar {
+            width: 35px;
+            height: 35px;
+        }
+
+        .memo-text {
+            font-size: 15px;
+        }
+    }
+</style>
+  </main>
+  <script>
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+    // 2. 自动收回逻辑：当页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.sidebar');
+
+      // 监听侧边栏内的点击动作
+      sidebar.addEventListener('click', function (e) {
+        // 如果点击的是链接 (A 标签) 或者链接里的文字 (SPAN)
+        if (e.target.closest('a')) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      // 点击侧边栏外部区域关闭（增强体验）
+      document.addEventListener('click', function (e) {
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (sidebar.classList.contains('active') &&
+          !sidebar.contains(e.target) &&
+          e.target !== menuToggle) {
+          sidebar.classList.remove('active');
+        }
+      });
+    });
+
+    let currentRotation = 0;
+
+    function rotateAvatar() {
+      currentRotation += 360; // 每次点击增加 360 度
+      const avatar = document.getElementById('user-avatar');
+      avatar.style.transform = `rotate(${currentRotation}deg)`;
+    }
+  </script>
+</body>
+
+</html>
