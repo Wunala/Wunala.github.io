@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+      读读说明书
+        
+  </title>
+  <link rel="icon" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NZNG2XJNE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-6NZNG2XJNE');
+    </script>
+    
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar-container">
+        <img src="/images/avatar.jpg" alt="Mr. Yang" class="avatar" id="user-avatar" onclick="rotateAvatar()">
+      </div>
+
+      <h1 class="name">读读说明书</h1>
+      <p class="subtitle">数据分析师 | 人类观察员</p>
+
+      <div class="social-links">
+        <a href="https://github.com/Wunala" target="_blank">GitHub</a>
+        <span>/</span>
+        <a href="mailto:youngqi27@163.com">Email</a>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="/">首页</a>
+      <a href="/archives">历史文章</a>
+      <a href="/memos">碎碎念</a>
+      <a href="/about">关于我</a>
+    </nav>
+
+    <div class="footer">
+      <p>&copy; 2025 Mr. Young</p>
+      <p class="site-motto">在夏天到达的尽头，值得我赌上每一份青春。</p>
+      <div class="footer-divider"></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="home-intro">
+  <h2>最近说明书</h2>
+</div>
+
+<div class="post-grid">
+  
+    <a href="/2026/01/18/qingchengshan-houshan/" class="post-card">
+      
+      <div class="card-content">
+        <span class="card-date">
+          2026.01.18
+        </span>
+        
+        <h3 class="card-title">行走是一种思考方式</h3>
+        
+        <div class="card-excerpt">
+            
+                有一天，在抖音上刷到一个视频，文案是“对不喜欢健身的人，去健身，这叫自律。对喜欢健身的人，去健身，这叫纵欲。”
+周六，一个人去了青城山后山。两年前，和朋友爬过一...
+            
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+      
+    </a>
+  
+    <a href="/2025/12/30/hello-world/" class="post-card">
+      
+      <div class="card-content">
+        <span class="card-date">
+          2025.12.30
+        </span>
+        
+        <h3 class="card-title">平静地，又一年过去</h3>
+        
+        <div class="card-excerpt">
+            
+                蜡笔小新电影里面有一个片段是小新用力地喊道：“我不要再失去任何人了”。我是在抖音上面刷到的，应该是在去年底的某一天，当时觉得简直就是说出了我内心在痛苦与气愤之后...
+            
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+      
+    </a>
+  
+</div>
+  </main>
+  <script>
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+    // 2. 自动收回逻辑：当页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.sidebar');
+
+      // 监听侧边栏内的点击动作
+      sidebar.addEventListener('click', function (e) {
+        // 如果点击的是链接 (A 标签) 或者链接里的文字 (SPAN)
+        if (e.target.closest('a')) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      // 点击侧边栏外部区域关闭（增强体验）
+      document.addEventListener('click', function (e) {
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (sidebar.classList.contains('active') &&
+          !sidebar.contains(e.target) &&
+          e.target !== menuToggle) {
+          sidebar.classList.remove('active');
+        }
+      });
+    });
+
+    let currentRotation = 0;
+
+    function rotateAvatar() {
+      currentRotation += 360; // 每次点击增加 360 度
+      const avatar = document.getElementById('user-avatar');
+      avatar.style.transform = `rotate(${currentRotation}deg)`;
+    }
+  </script>
+</body>
+
+</html>
