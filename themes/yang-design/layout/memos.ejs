@@ -1,0 +1,163 @@
+<div class="memos-wrapper">
+    <div class="memos-editor">
+        <textarea id="memo-content" placeholder="记录下想法...💡"></textarea>
+        <div class="editor-footer">
+            <input type="password" id="memo-pass" placeholder="输入密码" class="pass-input">
+            <button onclick="verifyAdmin()" id="auth-btn" title="验证身份">🔑</button>
+            <button onclick="postMemo()" id="post-btn">发送🚀</button>
+        </div>
+    </div>
+
+    <div id="memos-list">
+        <div class="loading"> Loading📡</div>
+    </div>
+
+    <button onclick="loadMemos()" id="load-more-btn" style="display:none">加载更多</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.15.0/dist/av-min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/xss@1.0.14/dist/xss.min.js"></script>
+<script>
+    // ================= 配置区 =================
+    const APP_ID = '7DskOMG6exb3QzJdatkZVLvj-MdYXbMMI';
+    const APP_KEY = 'Kgaf0mnSA2nlYMoZgkLfEzQn';
+    const ADMIN_HASH = '50d1587ff34a6910c8e76b899d69eae2';
+    // =========================================
+
+    const { Query, User } = AV;
+    AV.init({
+        appId: APP_ID, appKey: APP_KEY,
+        serverURLs: "https://api.youngreviews.cc"
+    });
+
+    let page = 0;
+    const pageSize = 5;
+    let isAdmin = localStorage.getItem('memo_admin_md5') === ADMIN_HASH;
+
+    async function loadMemos() {
+        const query = new AV.Query('shuoshuo');
+        query.descending('createdAt');
+        query.limit(pageSize);
+        query.skip(page * pageSize);
+
+        try {
+            const results = await query.find();
+            const listDiv = document.getElementById('memos-list');
+            const loadBtn = document.getElementById('load-more-btn');
+
+            if (page === 0) listDiv.innerHTML = '';
+
+            if (results.length === 0) {
+                loadBtn.style.display = 'none';
+                if (page === 0) listDiv.innerHTML = '<div class="empty">暂无内容</div>';
+                return;
+            }
+
+            results.forEach(memo => {
+                const content = filterXSS(memo.get('content'));
+                const dateObj = memo.createdAt;
+                const dateStr = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')} ${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+                const objectId = memo.id;
+                const delBtnHtml = isAdmin ? `<span class="del-btn" onclick="deleteMemo('${objectId}', this)">删除</span>` : '';
+
+                const item = document.createElement('div');
+                item.className = 'memo-item';
+                item.innerHTML = `
+                    <div class="memo-avatar"></div>
+                    <div class="memo-content">
+                        <div class="memo-text">${content}</div>
+                        <div class="memo-meta">
+                            <span class="memo-date">${dateStr}</span>
+                            ${delBtnHtml}
+                        </div>
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+
+            page++;
+            loadBtn.style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            alert('加载失败，请检查网络');
+        }
+    }
+
+    function verifyAdmin() {
+        const inputPass = document.getElementById('memo-pass').value;
+
+        if (md5(inputPass) === ADMIN_HASH) {
+            localStorage.setItem('memo_admin_md5', ADMIN_HASH);
+            isAdmin = true;
+            alert('身份验证成功！🔓');
+            page = 0;
+            loadMemos();
+            document.getElementById('memo-pass').value = '';
+        } else {
+            alert('验证失败🚫');
+        }
+    }
+
+    async function postMemo() {
+        const content = document.getElementById('memo-content').value;
+        const inputPass = document.getElementById('memo-pass').value;
+
+        if (!content) return alert('写点什么吧？');
+        if (!isAdmin && md5(inputPass) !== ADMIN_HASH) return alert('请输入正确密码');
+
+        const btn = document.getElementById('post-btn');
+        btn.innerText = '发送中...';
+        btn.disabled = true;
+
+        try {
+            const Memo = AV.Object.extend('shuoshuo');
+            const memo = new Memo();
+            memo.set('content', content);
+
+            const acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            memo.setACL(acl);
+
+            await memo.save();
+
+            if (!isAdmin) {
+                localStorage.setItem('memo_admin_md5', ADMIN_HASH);
+                isAdmin = true;
+            }
+
+            document.getElementById('memo-content').value = '';
+            page = 0;
+            loadMemos();
+
+            alert('发布成功！✅');
+        } catch (error) {
+            console.error(error);
+            alert('发布失败：' + error.message);
+        }
+
+        btn.innerText = '发送🚀';
+        btn.disabled = false;
+    }
+
+    async function deleteMemo(objectId, btnElement) {
+        if (!confirm('确定删除这条说说吗？')) return;
+
+        try {
+            const query = new AV.Query('shuoshuo');
+            const memo = await query.get(objectId);
+            await memo.destroy();
+
+            const item = btnElement.closest('.memo-item');
+            item.remove();
+
+            alert('删除成功！🗑️');
+        } catch (error) {
+            console.error(error);
+            alert('删除失败：' + error.message);
+        }
+    }
+
+    loadMemos();
+</script>

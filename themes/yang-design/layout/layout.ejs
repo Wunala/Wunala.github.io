@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="<%= config.language %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= page.title %> | <%= config.title %></title>
+  <link rel="icon" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <% if (theme.google_analytics) { %>
+    <script async src="https://www.googletmanager.com/gtag/js?id=<%= theme.google_analytics %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', '<%= theme.google_analytics %>');
+    </script>
+  <% } %>
+</head>
+<body>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar-container">
+        <img src="/images/avatar.jpg" alt="<%= config.author %>" class="avatar" id="user-avatar" onclick="rotateAvatar()">
+      </div>
+
+      <h1 class="name"><%= theme.profile.name %></h1>
+      <p class="subtitle"><%= theme.profile.subtitle %></p>
+
+      <div class="social-links">
+        <%- Object.entries(theme.social).map(([name, url]) => `<a href="${url}" target="${url.startsWith('http') ? '_blank' : ''}">${name}</a>`).join('<span>/</span>') %>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <%- Object.entries(theme.menu).map(([name, url]) => `<a href="${url}">${name}</a>`).join('') %>
+    </nav>
+
+    <div class="footer">
+      <p>&copy; <%= date(new Date(), 'YYYY') %> Mr. Young</p>
+      <p class="site-motto"><%= theme.profile.motto %></p>
+      <div class="footer-divider"></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <%- body %>
+  </main>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.addEventListener('click', function (e) {
+        if (e.target.closest('a')) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      let currentRotation = 0;
+
+      function rotateAvatar() {
+        currentRotation += 360;
+        const avatar = document.getElementById('user-avatar');
+        avatar.style.transform = `rotate(${currentRotation}deg)`;
+      }
+    });
+  </script>
+</body>
+</html>

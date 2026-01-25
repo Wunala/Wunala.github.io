@@ -1,0 +1,25 @@
+<div class="home-intro">
+  <h2>最近说明书</h2>
+</div>
+
+<div class="post-grid">
+  <% page.posts.each(function(post) { %>
+    <a href="<%= url_for(post.path) %>" class="post-card">
+      <div class="card-content">
+        <span class="card-date">
+          <%= date(post.date, 'YYYY.MM.DD') %>
+        </span>
+
+        <h3 class="card-title"><%= post.title %></h3>
+
+        <div class="card-excerpt">
+          <%- truncate(strip_html(post.content), {length: 100, omission: '...'}) %>
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+    </a>
+  <% }); %>
+</div>
+
+<%- partial('_partial/pagination') %>

@@ -1,0 +1,40 @@
+<article class="post-detail">
+  <header class="post-header">
+    <h1 class="post-title"><%= page.title %></h1>
+    <div class="post-meta">
+      <span class="post-date"><%= date(page.date, 'YYYY-MM-DD') %></span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <%- page.content %>
+  </div>
+
+  <footer class="post-footer">
+    <% if (page.tags && page.tags.length) { %>
+      <div class="post-tags">
+        <% page.tags.each(function(tag) { %>
+          <a href="<%= url_for(tag.path) %>"># <%= tag.name %></a>
+        <% }); %>
+      </div>
+    <% } %>
+  </footer>
+
+  <div class="post-end-nav">
+    <a href="javascript:history.back()" class="back-to-home-bottom">
+      <span class="arrow">←</span>
+      <span class="motto-small">返回上一页</span>
+    </a>
+  </div>
+
+  <div class="nav-bottom-row">
+    <a href="/about/" class="nav-item">
+      <div class="nav-title">关于我</div>
+    </a>
+    <span class="nav-divider">|</span>
+
+    <a href="/archives/" class="nav-item">
+      <div class="nav-title">历史文章</div>
+    </a>
+  </div>
+</article>

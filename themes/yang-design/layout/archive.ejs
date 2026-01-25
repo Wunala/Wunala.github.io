@@ -1,0 +1,34 @@
+<section class="archive-container">
+  <div class="archive-header">
+    <h1 class="archive-page-title">文章列表 <span>Archive</span></h1>
+    <p class="archive-subtitle">共有 <%= page.posts.length %> 篇</p>
+  </div>
+
+  <div class="archive-list">
+    <% var lastYear = null; %>
+    <% page.posts.each(function(post) { %>
+      <% var currentYear = date(post.date, 'YYYY'); %>
+      <% if (currentYear !== lastYear) { %>
+        <% lastYear = currentYear; %>
+        <div class="archive-year-wrap">
+          <h2 class="archive-year"><%= currentYear %></h2>
+        </div>
+      <% } %>
+
+      <article class="archive-article">
+        <div class="archive-article-inner">
+          <time datetime="<%= date(post.date, 'YYYY-MM-DD') %>" class="archive-article-date">
+            <%= date(post.date, 'MM-DD') %>
+          </time>
+          <h2 class="archive-article-title">
+            <a href="<%= url_for(post.path) %>"><%= post.title %></a>
+          </h2>
+        </div>
+      </article>
+    <% }); %>
+  </div>
+
+  <div class="pagination">
+    <span class="page-number current">1</span>
+  </div>
+</section>
