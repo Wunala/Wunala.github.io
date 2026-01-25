@@ -111,20 +111,27 @@
         btn.disabled = true;
 
         try {
+            // 每次发布都需要密码验证
+            const inputPass = document.getElementById('memo-pass').value;
+            if (!isAdmin && md5(inputPass) !== ADMIN_HASH) {
+                return alert('请输入正确密码才能发布');
+            }
+
             const Memo = AV.Object.extend('shuoshuo');
             const memo = new Memo();
             memo.set('content', content);
 
             const acl = new AV.ACL();
             acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
             memo.setACL(acl);
 
             await memo.save();
 
+            // 发布成功后不自动设为管理员，需要每次验证
             if (!isAdmin) {
-                localStorage.setItem('memo_admin_md5', ADMIN_HASH);
-                isAdmin = true;
+                alert('发布成功！但未设置管理员身份，删除操作仍需验证密码');
+            } else {
+                alert('发布成功！✅');
             }
 
             document.getElementById('memo-content').value = '';
@@ -143,6 +150,12 @@
 
     async function deleteMemo(objectId, btnElement) {
         if (!confirm('确定删除这条说说吗？')) return;
+
+        // 删除也需要验证密码
+        const inputPass = document.getElementById('memo-pass').value;
+        if (!isAdmin && md5(inputPass) !== ADMIN_HASH) {
+            return alert('请输入正确密码才能删除');
+        }
 
         try {
             const query = new AV.Query('shuoshuo');
