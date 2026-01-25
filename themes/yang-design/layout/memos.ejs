@@ -23,9 +23,10 @@
     const APP_ID = '7DskOMG6exb3QzJdatkZVLvj-MdYXbMMI';
     const APP_KEY = 'Kgaf0mnSA2nlYMoZgkLfEzQn';
     const ADMIN_HASH = '50d1587ff34a6910c8e76b899d69eae2';
+    const ADMIN_ROLE = 'admin';
     // =========================================
 
-    const { Query, User } = AV;
+    const { Query, User, Role } = AV;
     AV.init({
         appId: APP_ID, appKey: APP_KEY,
         serverURLs: "https://api.youngreviews.cc"
@@ -34,6 +35,25 @@
     let page = 0;
     const pageSize = 5;
     let isAdmin = localStorage.getItem('memo_admin_md5') === ADMIN_HASH;
+
+    // 初始化管理员角色（如果不存在）
+    async function initAdminRole() {
+        try {
+            const adminRoleQuery = new AV.Query(Role);
+            const role = await adminRoleQuery.equalTo('name', ADMIN_ROLE).first();
+
+            if (!role) {
+                // 角色不存在，创建管理员角色
+                const adminRole = new Role();
+                adminRole.setName(ADMIN_ROLE);
+                adminRole.setACL(new AV.ACL());
+                await adminRole.save();
+                console.log('管理员角色创建成功');
+            }
+        } catch (error) {
+            console.error('初始化角色失败:', error);
+        }
+    }
 
     async function loadMemos() {
         const query = new AV.Query('shuoshuo');
@@ -59,6 +79,10 @@
                 const dateObj = memo.createdAt;
                 const dateStr = `${dateObj.getFullYear()}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')} ${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
                 const objectId = memo.id;
+
+                // 检查当前用户是否有删除权限
+                const canDelete = isAdmin || memo.getACL().getWriteAccess(User.current());
+
                 const delBtnHtml = isAdmin ? `<span class="del-btn" onclick="deleteMemo('${objectId}', this)">删除</span>` : '';
 
                 const item = document.createElement('div');
@@ -111,34 +135,26 @@
         btn.disabled = true;
 
         try {
-            // 每次发布都需要密码验证
-            const inputPass = document.getElementById('memo-pass').value;
-            if (!isAdmin && md5(inputPass) !== ADMIN_HASH) {
-                return alert('请输入正确密码才能发布');
-            }
+            // 确保管理员角色存在
+            await initAdminRole();
 
             const Memo = AV.Object.extend('shuoshuo');
             const memo = new Memo();
             memo.set('content', content);
 
+            // 创建 ACL：公共读，只有管理员角色写
             const acl = new AV.ACL();
             acl.setPublicReadAccess(true);
-            memo.setACL(acl);
+            acl.setRoleWriteAccess(ADMIN_ROLE, true);
 
+            memo.setACL(acl);
             await memo.save();
 
-            // 发布成功后不自动设为管理员，需要每次验证
-            if (!isAdmin) {
-                alert('发布成功！但未设置管理员身份，删除操作仍需验证密码');
-            } else {
-                alert('发布成功！✅');
-            }
-
+            alert('发布成功！✅');
             document.getElementById('memo-content').value = '';
             page = 0;
             loadMemos();
 
-            alert('发布成功！✅');
         } catch (error) {
             console.error(error);
             alert('发布失败：' + error.message);
@@ -160,14 +176,32 @@
         try {
             const query = new AV.Query('shuoshuo');
             const memo = await query.get(objectId);
-            await memo.destroy();
 
-            const item = btnElement.closest('.memo-item');
-            item.remove();
+            // 尝试获取对象的 ACL
+            const acl = memo.getACL();
+            console.log('对象 ACL:', acl);
 
-            alert('删除成功！🗑️');
+            // 使用管理员权限强制删除
+            const adminRole = await new AV.Query(Role).equalTo('name', ADMIN_ROLE).first();
+            if (adminRole) {
+                // 临时修改 ACL 允许删除
+                const tempAcl = new AV.ACL();
+                tempAcl.setPublicReadAccess(true);
+                tempAcl.setRoleWriteAccess(ADMIN_ROLE, true);
+                memo.setACL(tempAcl);
+                await memo.save();
+
+                // 现在可以删除了
+                await memo.destroy();
+
+                const item = btnElement.closest('.memo-item');
+                item.remove();
+                alert('删除成功！🗑️');
+            } else {
+                alert('无法删除：管理员角色不存在');
+            }
         } catch (error) {
-            console.error(error);
+            console.error('删除错误详情:', error);
             alert('删除失败：' + error.message);
         }
     }
