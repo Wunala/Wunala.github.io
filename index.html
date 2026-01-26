@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> | 读读说明书</title>
+  <link rel="icon" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar-container">
+        <img src="/images/avatar.jpg" alt="Mr. Yang" class="avatar" id="user-avatar" onclick="rotateAvatar()">
+      </div>
+
+      <h1 class="name">读读说明书</h1>
+      <p class="subtitle">数据分析师 | 生活科学家</p>
+
+      <div class="social-links">
+        <a href="https://github.com/Wunala" target="_blank">GitHub</a><span>/</span><a href="mailto:youngqi27@163.com" target="">Email</a>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="/">首页</a><a href="/archives">历史文章</a><a href="/memos">碎碎念</a><a href="/about">关于我</a>
+    </nav>
+
+    <div class="footer">
+      <p>&copy; 2026 Mr. Young</p>
+      <p class="site-motto">在夏天到达的尽头，值得我赌上每一份青春。</p>
+      <div class="footer-divider"></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="home-intro">
+  <h2>最近说明书</h2>
+</div>
+
+<div class="post-grid">
+  
+    <a href="/2026/01/18/2026-01-18-%E8%A1%8C%E8%B5%B0%E6%98%AF%E4%B8%80%E7%A7%8D%E6%80%9D%E8%80%83%E6%96%B9%E5%BC%8F/" class="post-card">
+      <div class="card-content">
+        <span class="card-date">
+          2026.01.18
+        </span>
+
+        <h3 class="card-title">行走是一种思考方式</h3>
+
+        <div class="card-excerpt">
+          有一天，在抖音上刷到一个视频，文案是”对不喜欢健身的人，去健身，这叫自律。对喜欢健身的人，去健身，这叫纵欲。”
+周六，一个人去了青城山后山。两年前，和朋友爬过一次前山，我还以为后山只是前山的另外...
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+    </a>
+  
+    <a href="/2025/12/30/2025-12-30-%E5%B9%B3%E9%9D%99%E5%9C%B0-%E5%8F%88%E4%B8%80%E5%B9%B4%E8%BF%87%E5%8E%BB/" class="post-card">
+      <div class="card-content">
+        <span class="card-date">
+          2025.12.30
+        </span>
+
+        <h3 class="card-title">平静地，又一年过去</h3>
+
+        <div class="card-excerpt">
+          蜡笔小新电影里面有一个片段是小新用力地喊道：”我不要再失去任何人了”。我是在抖音上面刷到的，应该是在去年底的某一天，当时觉得简直就是说出了我内心在痛苦与气愤之后，不认命的倔强情绪反扑。
+回成都的...
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+    </a>
+  
+    <a href="/2022/01/01/2022-01-01-annual-summary/" class="post-card">
+      <div class="card-content">
+        <span class="card-date">
+          2022.01.01
+        </span>
+
+        <h3 class="card-title">2021年终总结</h3>
+
+        <div class="card-excerpt">
+          首先感谢朋友“卷起来”让我下决心不再偷懒，开始动手敲这个真正的年终总结。记得2021年初的时候写过一条微博，大意是：我希望在2021年能够给身边的人&amp;世界带来更多的积极。这是一个不能自证...
+        </div>
+
+        <span class="read-more-btn">阅读更多→</span>
+      </div>
+    </a>
+  
+</div>
+
+
+
+
+  </main>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.addEventListener('click', function (e) {
+        if (e.target.closest('a')) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      let currentRotation = 0;
+
+      function rotateAvatar() {
+        currentRotation += 360;
+        const avatar = document.getElementById('user-avatar');
+        avatar.style.transform = `rotate(${currentRotation}deg)`;
+      }
+    });
+  </script>
+</body>
+</html>
