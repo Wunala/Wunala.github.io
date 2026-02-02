@@ -1,0 +1,56 @@
+<div class="tag-filter">
+  <button class="tag-filter-btn active" data-tag="all">全部</button>
+  <% site.tags.sort('name').each(function(tag) { %>
+    <button class="tag-filter-btn" data-tag="<%= tag.name %>"><%= tag.name %></button>
+  <% }); %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var filterBtns = document.querySelectorAll('.tag-filter-btn');
+  var articles = document.querySelectorAll('.archive-article');
+  var years = document.querySelectorAll('.archive-year');
+  var pagination = document.querySelector('.pagination');
+
+  filterBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      // 移除所有按钮的 active 类
+      filterBtns.forEach(function(b) {
+        b.classList.remove('active');
+      });
+      // 给当前按钮添加 active 类
+      this.classList.add('active');
+
+      var selectedTag = this.getAttribute('data-tag');
+
+      articles.forEach(function(article) {
+        var articleTags = article.getAttribute('data-tags');
+        if (selectedTag === 'all') {
+          article.classList.remove('hidden');
+        } else if (articleTags && articleTags.indexOf(selectedTag) !== -1) {
+          article.classList.remove('hidden');
+        } else {
+          article.classList.add('hidden');
+        }
+      });
+
+      // 筛选时隐藏年份标题和分页
+      if (selectedTag === 'all') {
+        years.forEach(function(year) {
+          year.style.display = 'block';
+        });
+        if (pagination) {
+          pagination.style.display = 'flex';
+        }
+      } else {
+        years.forEach(function(year) {
+          year.style.display = 'none';
+        });
+        if (pagination) {
+          pagination.style.display = 'none';
+        }
+      }
+    });
+  });
+});
+</script>

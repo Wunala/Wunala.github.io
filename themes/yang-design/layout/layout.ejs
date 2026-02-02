@@ -17,66 +17,30 @@
   <% } %>
 </head>
 <body>
-  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-  <aside class="sidebar">
-    <div class="profile">
-      <div class="avatar-container">
-        <img src="/images/avatar.jpg" alt="<%= config.author %>" class="avatar" id="user-avatar" onclick="rotateAvatar()">
-      </div>
+  <div class="site-wrapper">
+    <header class="site-header">
+      <a href="/" class="site-title">
+        <img src="/images/favicon.png" alt="天王星" class="site-icon">
+        <span><%= config.title %></span>
+      </a>
+    </header>
 
-      <h1 class="name"><%= theme.profile.name %></h1>
-      <p class="subtitle"><%= theme.profile.subtitle %></p>
+    <main class="main-content">
+      <%- body %>
+    </main>
 
-      <div class="social-links">
-        <%- Object.entries(theme.social).map(([name, url]) => `<a href="${url}" target="${url.startsWith('http') ? '_blank' : ''}">${name}</a>`).join('<span>/</span>') %>
-      </div>
-    </div>
-
-    <nav class="main-nav">
-      <%- Object.entries(theme.menu).map(([name, url]) => `<a href="${url}">${name}</a>`).join('') %>
-    </nav>
-
-    <div class="footer">
-      <p>&copy; <%= date(new Date(), 'YYYY') %> Mr. Young</p>
-      <p class="site-motto"><%= theme.profile.motto %></p>
-      <div class="footer-divider"></div>
-    </div>
-  </aside>
-
-  <main class="content">
-    <%- body %>
-  </main>
-
-  <script>
-    function toggleMenu() {
-      const sidebar = document.querySelector('.sidebar');
-      sidebar.classList.toggle('active');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const sidebar = document.querySelector('.sidebar');
-      sidebar.addEventListener('click', function (e) {
-        if (e.target.closest('a')) {
-          sidebar.classList.remove('active');
+    <footer class="site-footer">
+      <%- Object.entries(theme.menu).map(([name, url]) => {
+        if (url.startsWith('mailto:')) {
+          return `<a href="${url}" class="footer-link">${name}</a>`;
         }
-      });
-
-      document.addEventListener('click', function (e) {
-        const menuToggle = document.querySelector('.menu-toggle');
-        const sidebar = document.querySelector('.sidebar');
-        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-          sidebar.classList.remove('active');
-        }
-      });
-
-      let currentRotation = 0;
-
-      function rotateAvatar() {
-        currentRotation += 360;
-        const avatar = document.getElementById('user-avatar');
-        avatar.style.transform = `rotate(${currentRotation}deg)`;
-      }
-    });
-  </script>
+        return `<a href="${url}" class="footer-link">${name}</a>`;
+      }).join('<span class="footer-divider"></span>') %>
+      <div class="footer-copyright">
+        <p>&copy; <%= date(new Date(), 'YYYY') %> Mr. Young</p>
+        <p class="site-motto"><%= theme.profile.motto %></p>
+      </div>
+    </footer>
+  </div>
 </body>
 </html>

@@ -18,23 +18,26 @@
         <% }); %>
       </div>
     <% } %>
+
+    <!-- 上一篇/下一篇导航 -->
+    <div class="post-nav">
+      <% if (page.prev) { %>
+        <a href="<%= url_for(page.prev.path) %>" class="post-nav-item prev">
+          <span class="post-nav-label">← 上一篇</span>
+          <span class="post-nav-title"><%= page.prev.title %></span>
+        </a>
+      <% } else { %>
+        <div></div>
+      <% } %>
+
+      <% if (page.next) { %>
+        <a href="<%= url_for(page.next.path) %>" class="post-nav-item next">
+          <span class="post-nav-label">下一篇 →</span>
+          <span class="post-nav-title"><%= page.next.title %></span>
+        </a>
+      <% } else { %>
+        <div></div>
+      <% } %>
+    </div>
   </footer>
-
-  <div class="post-end-nav">
-    <a href="javascript:history.back()" class="back-to-home-bottom">
-      <span class="arrow">←</span>
-      <span class="motto-small">返回上一页</span>
-    </a>
-  </div>
-
-  <div class="nav-bottom-row">
-    <a href="/about/" class="nav-item">
-      <div class="nav-title">关于我</div>
-    </a>
-    <span class="nav-divider">|</span>
-
-    <a href="/archives/" class="nav-item">
-      <div class="nav-title">历史文章</div>
-    </a>
-  </div>
 </article>

@@ -1,8 +1,8 @@
 menu:
-  首页: /
-  历史文章: /archives
-  碎碎念: /memos
+  主页: /
   关于我: /about
+  文章列表: /archives
+  联系: mailto:youngqi27@163.com
 
 social:
   GitHub: https://github.com/Wunala

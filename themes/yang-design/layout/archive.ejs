@@ -1,21 +1,23 @@
 <section class="archive-container">
   <div class="archive-header">
-    <h1 class="archive-page-title">文章列表 <span>Archive</span></h1>
+    <h1 class="archive-page-title">文章列表</h1>
     <p class="archive-subtitle">共有 <%= page.posts.length %> 篇</p>
   </div>
+
+  <!-- 标签筛选器 -->
+  <%- partial('_partial/tag-filter') %>
 
   <div class="archive-list">
     <% var lastYear = null; %>
     <% page.posts.each(function(post) { %>
       <% var currentYear = date(post.date, 'YYYY'); %>
+      <% var postTags = post.tags.map(function(tag) { return tag.name; }).join(','); %>
       <% if (currentYear !== lastYear) { %>
         <% lastYear = currentYear; %>
-        <div class="archive-year-wrap">
-          <h2 class="archive-year"><%= currentYear %></h2>
-        </div>
+        <h2 class="archive-year"><%= currentYear %></h2>
       <% } %>
 
-      <article class="archive-article">
+      <article class="archive-article" data-tags="<%= postTags %>">
         <div class="archive-article-inner">
           <time datetime="<%= date(post.date, 'YYYY-MM-DD') %>" class="archive-article-date">
             <%= date(post.date, 'MM-DD') %>
@@ -28,7 +30,5 @@
     <% }); %>
   </div>
 
-  <div class="pagination">
-    <span class="page-number current">1</span>
-  </div>
+  <%- partial('_partial/pagination') %>
 </section>
