@@ -98,6 +98,18 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: yang-design
 
+# RSS Feed
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content:
+  content_limit: 140
+  content_limit_delim: ' '
+  icon: /images/favicon.png
+  order_by: -date
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:

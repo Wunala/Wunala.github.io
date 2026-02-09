@@ -3,6 +3,7 @@ menu:
   关于我: /about
   文章列表: /archives
   联系: mailto:youngqi27@163.com
+  RSS: /atom.xml
 
 social:
   GitHub: https://github.com/Wunala
